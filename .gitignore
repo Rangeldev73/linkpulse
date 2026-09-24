@@ -1,0 +1,46 @@
+# Target and Build Folders
+target/
+**/target/
+build/
+**/build/
+bin/
+out/
+
+# Maven Wrapper Executable Binary (Keep scripts mvnw/mvnw.cmd and properties)
+.mvn/wrapper/maven-wrapper.jar
+
+# IDE - IntelliJ IDEA
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# IDE - Eclipse / STS
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings/
+.springBeans
+.sts4-cache/
+
+# IDE - VS Code
+.vscode/
+
+# Logs & Temporary Files
+*.log
+logs/
+*.tmp
+*.temp
+
+# OS Generated Files
+.DS_Store
+Thumbs.db
+
+# Help & Metadata Files
+HELP.md
+
+# Environment & Local Overrides (For future phases)
+*.env
+*.local
+docker-compose.override.yml
