@@ -4,13 +4,13 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.linkpulse</groupId>
+    <groupId>io.github.rangeldev73</groupId>
     <artifactId>linkpulse</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>linkpulse</name>
-    <description>Monorepo para a plataforma LinkPulse</description>
+    <description>Monorepo for the LinkPulse platform</description>
 
     <modules>
         <module>link-service</module>
@@ -19,11 +19,9 @@
     </modules>
 
     <properties>
-        <java.version>21</java.version>
-        <maven.compiler.source>21</maven.compiler.source>
-        <maven.compiler.target>21</maven.compiler.target>
+        <maven.compiler.release>25</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <spring-boot.version>3.4.3</spring-boot.version>
+        <spring-boot.version>4.1.1</spring-boot.version>
     </properties>
 
     <dependencyManagement>
