@@ -45,6 +45,7 @@ public class LinkCreationService {
             throw new CodeGenerationException("Could not generate a unique link code after multiple attempts.", e);
         }
     }
+
     private Link createWithCustomAlias(String originalUrl, String userId, String customAlias, Instant expiresAt) {
         try {
             return saveLink(customAlias, originalUrl, userId, expiresAt);
@@ -55,6 +56,7 @@ public class LinkCreationService {
             throw e;
         }
     }
+
     private Link saveLink(String code, String originalUrl, String userId, Instant expiresAt) {
         Link link = Link.builder()
                 .code(code)
@@ -64,6 +66,7 @@ public class LinkCreationService {
                 .build();
         return persistenceService.saveIsolated(link);
     }
+
     private boolean isCodeConstraintViolation(DataIntegrityViolationException e) {
         if (e.getCause() instanceof org.hibernate.exception.ConstraintViolationException hibernateException) {
             String constraintName = hibernateException.getConstraintName();
