@@ -47,11 +47,12 @@ public class LinkCreationService {
     }
 
     private Link createWithCustomAlias(String originalUrl, String userId, String customAlias, Instant expiresAt) {
+        String normalizedAlias = customAlias.trim().toLowerCase();
         try {
-            return saveLink(customAlias, originalUrl, userId, expiresAt);
+            return saveLink(normalizedAlias, originalUrl, userId, expiresAt);
         } catch (DataIntegrityViolationException e) {
             if (isCodeConstraintViolation(e)) {
-                throw new AliasAlreadyExistsException(customAlias);
+                throw new AliasAlreadyExistsException(normalizedAlias);
             }
             throw e;
         }
