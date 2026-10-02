@@ -19,7 +19,6 @@ public class LinkCreationService {
     private static final int MAX_RETRIES = 3;
     private static final int INITIAL_CODE_LENGTH = 6;
     private static final int FALLBACK_CODE_LENGTH = 7;
-    private static final String UK_CODE_CONSTRAINT = "uk_links_code";
 
     public Link createLink(String originalUrl, String userId, String customAlias, Instant expiresAt) {
         if (customAlias != null && !customAlias.isBlank()) {
@@ -69,9 +68,12 @@ public class LinkCreationService {
     }
 
     private boolean isCodeConstraintViolation(DataIntegrityViolationException e) {
-        if (e.getCause() instanceof org.hibernate.exception.ConstraintViolationException hibernateException) {
-            String constraintName = hibernateException.getConstraintName();
-            return constraintName != null && constraintName.toLowerCase().contains(UK_CODE_CONSTRAINT);
+        Throwable rootCause = e.getMostSpecificCause();
+        if (rootCause != null && rootCause.getMessage() != null) {
+            String message = rootCause.getMessage().toLowerCase();
+            boolean isDuplicateKey = message.contains("duplicate key") || message.contains("unique constraint");
+            boolean isCodeField = message.contains("uk_links_code") || message.contains("key (code)");
+            return isDuplicateKey && isCodeField;
         }
         return false;
     }
