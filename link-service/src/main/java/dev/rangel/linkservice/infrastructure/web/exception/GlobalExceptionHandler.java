@@ -68,4 +68,15 @@ public class GlobalExceptionHandler {
         problem.setType(URI.create("https://linkpulse.dev/errors/link-not-found"));
         return problem;
     }
+
+    @ExceptionHandler(Exception.class)
+    public ProblemDetail handleUncaughtException(Exception ex) {
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(
+                HttpStatus.INTERNAL_SERVER_ERROR,
+                ex.getMessage()
+        );
+        problem.setTitle("Internal Server Error");
+        problem.setType(URI.create("https://linkpulse.dev/errors/internal-server-error"));
+        return problem;
+    }
 }
