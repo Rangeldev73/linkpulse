@@ -61,7 +61,7 @@ public class LinkController {
     }
 
     @GetMapping("/{code}")
-    public ResponseEntity<LinkResponse> getLinkByCode(@PathVariable String code) {
+    public ResponseEntity<LinkResponse> getLinkByCode(@PathVariable("code") String code) {
         Link link = linkQueryService.getByCode(code);
         return ResponseEntity.ok(LinkResponse.from(link, baseUrl));
     }

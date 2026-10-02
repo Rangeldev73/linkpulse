@@ -1,10 +1,10 @@
 package dev.rangel.linkservice;
 
+import dev.rangel.linkservice.config.AbstractIntegrationTest;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
 
-@SpringBootTest
-class LinkServiceApplicationTests {
+class LinkServiceApplicationTests extends AbstractIntegrationTest {
+
     @Test
     void contextLoads() {
     }
