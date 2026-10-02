@@ -11,6 +11,7 @@ out/
 
 # IDE - IntelliJ IDEA
 .idea/
+.run/
 *.iml
 *.iws
 *.ipr
