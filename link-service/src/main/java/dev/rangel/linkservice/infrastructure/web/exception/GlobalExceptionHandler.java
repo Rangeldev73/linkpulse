@@ -79,4 +79,15 @@ public class GlobalExceptionHandler {
         problem.setType(URI.create("https://linkpulse.dev/errors/internal-server-error"));
         return problem;
     }
+
+    @ExceptionHandler(org.springframework.security.core.AuthenticationException.class)
+    public ProblemDetail handleAuthenticationException(org.springframework.security.core.AuthenticationException ex) {
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(
+                HttpStatus.UNAUTHORIZED,
+                ex.getMessage() != null ? ex.getMessage() : "Full authentication is required to access this resource."
+        );
+        problem.setTitle("Unauthorized");
+        problem.setType(URI.create("https://linkpulse.dev/errors/unauthorized"));
+        return problem;
+    }
 }

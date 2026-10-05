@@ -8,13 +8,9 @@ import dev.rangel.linkservice.domain.model.Link;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
@@ -40,8 +36,10 @@ public class LinkController {
     @PostMapping
     public ResponseEntity<LinkResponse> createLink(
             @Valid @RequestBody CreateLinkRequest request,
-            @RequestHeader("X-User-Id") String userId
+            @AuthenticationPrincipal Jwt jwt
     ) {
+        String userId = jwt.getSubject();
+
         Link createdLink = linkCreationService.createLink(
                 request.originalUrl(),
                 userId,
@@ -61,8 +59,12 @@ public class LinkController {
     }
 
     @GetMapping("/{code}")
-    public ResponseEntity<LinkResponse> getLinkByCode(@PathVariable("code") String code) {
-        Link link = linkQueryService.getByCode(code);
+    public ResponseEntity<LinkResponse> getLinkByCode(
+            @PathVariable("code") String code,
+            @AuthenticationPrincipal Jwt jwt
+    ) {
+        String userId = jwt.getSubject();
+        Link link = linkQueryService.getByCode(code, userId);
         return ResponseEntity.ok(LinkResponse.from(link, baseUrl));
     }
 }
