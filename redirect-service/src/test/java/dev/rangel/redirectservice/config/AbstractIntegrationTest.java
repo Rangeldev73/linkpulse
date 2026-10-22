@@ -25,7 +25,7 @@ import org.testcontainers.utility.DockerImageName;
 // shared static Testcontainers). Accepted as pragmatism;
 // revisit if suite performance cost grows in upcoming phases.
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
-@Import(TestClockConfig.class)
+@Import({TestClockConfig.class, TestKafkaConfig.class})
 public abstract class AbstractIntegrationTest {
 
     @Container
