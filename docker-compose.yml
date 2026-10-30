@@ -20,6 +20,25 @@ services:
     networks:
       - linkpulse-net
 
+  postgres-analytics:
+    image: postgres:16-alpine
+    container_name: linkpulse-postgres-analytics
+    environment:
+      POSTGRES_DB: ${ANALYTICS_DB_NAME}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "${ANALYTICS_DB_PORT}:5432"
+    volumes:
+      - postgres-analytics-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${ANALYTICS_DB_NAME}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - linkpulse-net
+
   redis:
     image: redis:7-alpine
     container_name: linkpulse-redis
@@ -53,6 +72,7 @@ services:
 
 volumes:
   postgres-data:
+  postgres-analytics-data:
 
 networks:
   linkpulse-net:
