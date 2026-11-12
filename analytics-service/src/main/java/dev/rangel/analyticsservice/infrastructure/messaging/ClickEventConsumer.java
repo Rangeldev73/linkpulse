@@ -17,7 +17,7 @@ public class ClickEventConsumer {
     private final ClickEventPersistenceService persistenceService;
     private static final Logger log = LoggerFactory.getLogger(ClickEventConsumer.class);
 
-    @KafkaListener(topics = "redirect-attempts", groupId = "analytics-service-group")
+    @KafkaListener(topics = "redirect-attempts", groupId = "analytics-service-group", autoStartup = "${app.kafka.listener.auto-startup:true}")
     public void consume(RedirectAttemptEvent event) {
         log.debug("Received redirect attempt event with ID: {} for code: {}", event.eventId(), event.code());
 
