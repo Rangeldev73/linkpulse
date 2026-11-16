@@ -22,15 +22,28 @@ public class ClickEventPublisher {
 
     private static final String TOPIC_NAME = "redirect-attempts";
 
+    /**
+     * Fire-and-forget: analytics must never slow down or break a redirect.
+     * Any failure is logged with the full payload (our audit trail) and swallowed.
+     */
     public void publish(String code, RedirectResult result, String clientIp, String userAgent, String referer) {
-        RedirectAttemptEvent event = mapToEvent(code, result, clientIp, userAgent, referer);
+        RedirectAttemptEvent event = null;
+        try {
+            event = mapToEvent(code, result, clientIp, userAgent, referer);
+            sendAsync(event);
+        } catch (RuntimeException e) {
+            // send() can throw synchronously (e.g. serialization error) before it returns its future.
+            log.error("Could not hand redirect attempt event to Kafka. Payload: {} due to: {}", event, e.getMessage(), e);
+        }
+    }
 
-        kafkaTemplate.send(TOPIC_NAME, code, event).whenComplete((sendResult, ex) -> {
+    private void sendAsync(RedirectAttemptEvent event) {
+        kafkaTemplate.send(TOPIC_NAME, event.code(), event).whenComplete((sendResult, ex) -> {
             if (ex != null) {
                 log.error("Failed to publish redirect attempt event. Payload: {} due to: {}", event, ex.getMessage(), ex);
             } else {
                 log.debug("Successfully published redirect attempt event for code: {} to partition: {}",
-                        code, sendResult.getRecordMetadata().partition());
+                        event.code(), sendResult.getRecordMetadata().partition());
             }
         });
     }
