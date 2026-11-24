@@ -37,6 +37,7 @@ class ClickEventConsumerIntegrationTest extends BaseIntegrationTest {
         var event = new RedirectAttemptEvent(
                 eventId,
                 "hot-001",
+                "owner-1",
                 "SUCCESS",
                 "https://github.com",
                 null,
@@ -55,6 +56,7 @@ class ClickEventConsumerIntegrationTest extends BaseIntegrationTest {
         assertThat(saved.getEventId()).isEqualTo(eventId);
         assertThat(saved.getCode()).isEqualTo("hot-001");
         assertThat(saved.getStatus()).isEqualTo("SUCCESS");
+        assertThat(saved.getOwnerId()).isEqualTo("owner-1");
         assertThat(saved.getTargetUrl()).isEqualTo("https://github.com");
         assertThat(saved.getClientIp()).isEqualTo("0:0:0:0:0:0:0:1");
         assertThat(saved.getUserAgent()).contains("iPhone");
@@ -69,6 +71,7 @@ class ClickEventConsumerIntegrationTest extends BaseIntegrationTest {
         var event = new RedirectAttemptEvent(
                 UUID.randomUUID().toString(),
                 "hot-001",
+                "owner-1",
                 "SUCCESS",
                 "https://github.com",
                 null,
@@ -93,6 +96,7 @@ class ClickEventConsumerIntegrationTest extends BaseIntegrationTest {
         var event = new RedirectAttemptEvent(
                 UUID.randomUUID().toString(),
                 "invalid-code",
+                null,
                 "FAILURE",
                 null,
                 "NOT_FOUND",
@@ -110,6 +114,7 @@ class ClickEventConsumerIntegrationTest extends BaseIntegrationTest {
         assertThat(savedEvents.get(0).getStatus()).isEqualTo("FAILURE");
         assertThat(savedEvents.get(0).getTargetUrl()).isNull();
         assertThat(savedEvents.get(0).getFailureReason()).isEqualTo("NOT_FOUND");
+        assertThat(savedEvents.get(0).getOwnerId()).isNull();
     }
 
     @Test
@@ -120,6 +125,7 @@ class ClickEventConsumerIntegrationTest extends BaseIntegrationTest {
         var event = new RedirectAttemptEvent(
                 eventId,
                 "hot-001",
+                "owner-1",
                 "SUCCESS",
                 "https://github.com",
                 null,
@@ -144,6 +150,7 @@ class ClickEventConsumerIntegrationTest extends BaseIntegrationTest {
         var event = new RedirectAttemptEvent(
                 UUID.randomUUID().toString(),
                 longCode,
+                "owner-1",
                 "SUCCESS",
                 "https://github.com",
                 null,
