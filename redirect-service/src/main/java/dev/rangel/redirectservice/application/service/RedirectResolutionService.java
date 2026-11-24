@@ -37,7 +37,7 @@ public class RedirectResolutionService {
 
         try {
             URI targetUri = URI.create(link.originalUrl());
-            return new RedirectResult.Success(targetUri);
+            return new RedirectResult.Success(targetUri, link.ownerId());
         } catch (IllegalArgumentException e) {
             return logAndReturnFailure(link.code(), RedirectFailureReason.INVALID_URL);
         }

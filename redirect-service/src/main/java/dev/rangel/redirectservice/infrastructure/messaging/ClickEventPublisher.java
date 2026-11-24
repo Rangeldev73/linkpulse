@@ -54,10 +54,10 @@ public class ClickEventPublisher {
 
         return switch (result) {
             case RedirectResult.Success success -> new RedirectAttemptEvent(
-                    eventId, code, "SUCCESS", success.targetUri().toString(), null, ip, ua, ref, timestamp
+                    eventId, code, success.ownerId(), "SUCCESS", success.targetUri().toString(), null, ip, ua, ref, timestamp
             );
             case RedirectResult.Failure failure -> new RedirectAttemptEvent(
-                    eventId, code, "FAILURE", null, failure.reason().name(), ip, ua, ref, timestamp
+                    eventId, code, null, "FAILURE", null, failure.reason().name(), ip, ua, ref, timestamp
             );
         };
     }

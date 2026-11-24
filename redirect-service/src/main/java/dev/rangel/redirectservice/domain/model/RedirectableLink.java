@@ -26,6 +26,9 @@ public class RedirectableLink {
     @Column(name = "original_url", nullable = false, columnDefinition = "TEXT")
     private String originalUrl;
 
+    @Column(name = "user_id", nullable = false, length = 100)
+    private String userId;
+
     @Column(name = "expires_at")
     private Instant expiresAt;
 
