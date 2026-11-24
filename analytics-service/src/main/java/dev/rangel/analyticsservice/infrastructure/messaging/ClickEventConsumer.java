@@ -24,6 +24,7 @@ public class ClickEventConsumer {
         ClickEventEntity entity = ClickEventEntity.builder()
                 .eventId(event.eventId())
                 .code(event.code())
+                .ownerId(event.ownerId())
                 .status(event.status())
                 .targetUrl(event.targetUrl())
                 .failureReason(event.failureReason())

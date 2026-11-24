@@ -88,6 +88,8 @@ class ClickEventConsumerE2ETest extends BaseIntegrationTest {
             assertThat(saved.getEventId()).isEqualTo(eventId);
             assertThat(saved.getCode()).isEqualTo(KEY);
             assertThat(saved.getStatus()).isEqualTo("SUCCESS");
+            // Legacy payload without ownerId must still be consumed (tolerant reader).
+            assertThat(saved.getOwnerId()).isNull();
             assertThat(saved.getTargetUrl()).isEqualTo("https://github.com");
             assertThat(saved.getClientIp()).isEqualTo("0:0:0:0:0:0:0:1");
             assertThat(saved.getUserAgent()).contains("iPhone");

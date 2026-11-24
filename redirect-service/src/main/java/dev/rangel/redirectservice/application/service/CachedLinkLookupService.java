@@ -9,7 +9,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import java.time.Duration;
-import java.time.Instant;
 import java.util.Optional;
 
 @Service
@@ -23,12 +22,7 @@ public class CachedLinkLookupService {
     private static final String CACHE_KEY_PREFIX = "link:";
     private static final Duration CACHE_TTL = Duration.ofMinutes(3);
 
-    private static final CachedLink SENTINEL = new CachedLink(
-            "__NOT_FOUND__",
-            "",
-            Instant.EPOCH,
-            false
-    );
+    private static final CachedLink SENTINEL = new CachedLink("__NOT_FOUND__", null, null, null, false);
 
     public Optional<CachedLink> getLink(String code) {
         String cacheKey = CACHE_KEY_PREFIX + code;
@@ -58,12 +52,13 @@ public class CachedLinkLookupService {
         return Optional.of(newCacheEntry);
     }
 
-    private CachedLink mapToDto(RedirectableLink entity) {
+    private CachedLink mapToDto(RedirectableLink link) {
         return new CachedLink(
-                entity.getCode(),
-                entity.getOriginalUrl(),
-                entity.getExpiresAt(),
-                entity.getIsActive()
+                link.getCode(),
+                link.getOriginalUrl(),
+                link.getUserId(),
+                link.getExpiresAt(),
+                Boolean.TRUE.equals(link.getIsActive())
         );
     }
 }

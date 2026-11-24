@@ -33,6 +33,9 @@ public class ClickEventEntity {
     @Column(nullable = false, length = 50)
     private String code;
 
+    @Column(name = "owner_id", length = 100)
+    private String ownerId;
+
     @Column(nullable = false, length = 20)
     private String status;
 
