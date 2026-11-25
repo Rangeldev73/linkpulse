@@ -14,6 +14,7 @@ public interface ClickStatsRepository extends Repository<ClickEventEntity, Long>
      * Counts successful redirects of one code per time bucket.
      * The window is closed at the start and open at the end ([start, end)), so an event
      * exactly on a boundary is counted in one bucket only. Served by idx_click_events_code_occurred_at.
+     * Scoped to the link owner: events of other owners (or legacy events without an owner) are never counted.
      *
      * @param granularity a date_trunc unit, validated by the caller ("hour" or "day")
      */
@@ -22,6 +23,7 @@ public interface ClickStatsRepository extends Repository<ClickEventEntity, Long>
                    COUNT(*) AS clicks
             FROM tb_click_events
             WHERE code = :code
+              AND owner_id = :ownerId
               AND status = 'SUCCESS'
               AND occurred_at >= :start
               AND occurred_at < :end
@@ -29,6 +31,7 @@ public interface ClickStatsRepository extends Repository<ClickEventEntity, Long>
             ORDER BY bucket
             """, nativeQuery = true)
     List<ClickBucketProjection> countClicksByBucket(@Param("code") String code,
+                                                    @Param("ownerId") String ownerId,
                                                     @Param("granularity") String granularity,
                                                     @Param("start") Instant start,
                                                     @Param("end") Instant end);

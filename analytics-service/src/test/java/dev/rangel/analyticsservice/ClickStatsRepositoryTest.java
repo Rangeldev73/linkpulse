@@ -38,7 +38,7 @@ class ClickStatsRepositoryTest extends BaseIntegrationTest {
         save("stats-001", "SUCCESS", "2026-11-10T10:55:00Z");
         save("stats-001", "SUCCESS", "2026-11-10T11:10:00Z");
 
-        var buckets = statsRepository.countClicksByBucket("stats-001", "hour", START, END);
+        var buckets = statsRepository.countClicksByBucket("stats-001", "owner-1", "hour", START, END);
 
         assertThat(buckets)
                 .extracting(ClickBucketProjection::getBucket, ClickBucketProjection::getClicks)
@@ -54,7 +54,7 @@ class ClickStatsRepositoryTest extends BaseIntegrationTest {
         save("stats-001", "FAILURE", "2026-11-10T10:30:00Z");
         save("stats-002", "SUCCESS", "2026-11-10T10:40:00Z");
 
-        var buckets = statsRepository.countClicksByBucket("stats-001", "hour", START, END);
+        var buckets = statsRepository.countClicksByBucket("stats-001", "owner-1", "hour", START, END);
 
         assertThat(buckets)
                 .extracting(ClickBucketProjection::getBucket, ClickBucketProjection::getClicks)
@@ -67,7 +67,7 @@ class ClickStatsRepositoryTest extends BaseIntegrationTest {
         save("stats-001", "SUCCESS", "2026-11-10T10:00:00Z");
         save("stats-001", "SUCCESS", "2026-11-10T12:00:00Z");
 
-        var buckets = statsRepository.countClicksByBucket("stats-001", "hour", START, END);
+        var buckets = statsRepository.countClicksByBucket("stats-001", "owner-1", "hour", START, END);
 
         assertThat(buckets)
                 .extracting(ClickBucketProjection::getBucket, ClickBucketProjection::getClicks)
@@ -81,7 +81,7 @@ class ClickStatsRepositoryTest extends BaseIntegrationTest {
         save("stats-001", "SUCCESS", "2026-11-10T23:30:00Z");
         save("stats-001", "SUCCESS", "2026-11-11T00:30:00Z");
 
-        var buckets = statsRepository.countClicksByBucket("stats-001", "day",
+        var buckets = statsRepository.countClicksByBucket("stats-001", "owner-1", "day",
                 Instant.parse("2026-11-10T00:00:00Z"), Instant.parse("2026-11-12T00:00:00Z"));
 
         assertThat(buckets)
@@ -92,15 +92,36 @@ class ClickStatsRepositoryTest extends BaseIntegrationTest {
     }
 
     @Test
+    @DisplayName("Never counts clicks of links owned by someone else, nor legacy events without an owner")
+    void shouldCountOnlyClicksOfTheRequestedOwner() {
+        save("stats-001", "SUCCESS", "2026-11-10T10:05:00Z");
+        saveOwnedBy("owner-2", "stats-001", "SUCCESS", "2026-11-10T10:15:00Z");
+        saveOwnedBy(null, "stats-001", "SUCCESS", "2026-11-10T10:25:00Z");
+
+        var asOwner1 = statsRepository.countClicksByBucket("stats-001", "owner-1", "hour", START, END);
+        var asStranger = statsRepository.countClicksByBucket("stats-001", "owner-3", "hour", START, END);
+
+        assertThat(asOwner1)
+                .extracting(ClickBucketProjection::getBucket, ClickBucketProjection::getClicks)
+                .containsExactly(tuple(epoch("2026-11-10T10:00:00Z"), 1L));
+        assertThat(asStranger).isEmpty();
+    }
+
+    @Test
     @DisplayName("Returns an empty list when the code has no clicks in the window")
     void shouldReturnEmptyListWhenNoClicks() {
-        assertThat(statsRepository.countClicksByBucket("stats-001", "hour", START, END)).isEmpty();
+        assertThat(statsRepository.countClicksByBucket("stats-001", "owner-1", "hour", START, END)).isEmpty();
     }
 
     private void save(String code, String status, String occurredAt) {
+        saveOwnedBy("owner-1", code, status, occurredAt);
+    }
+
+    private void saveOwnedBy(String ownerId, String code, String status, String occurredAt) {
         eventRepository.save(ClickEventEntity.builder()
                 .eventId(UUID.randomUUID().toString())
                 .code(code)
+                .ownerId(ownerId)
                 .status(status)
                 .failureReason("FAILURE".equals(status) ? "NOT_FOUND" : null)
                 .occurredAt(Instant.parse(occurredAt))
