@@ -3,6 +3,7 @@ package dev.rangel.analyticsservice.infrastructure.web.controller;
 import dev.rangel.analyticsservice.application.dto.InvalidStatsQueryException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
@@ -17,6 +18,17 @@ public class ApiExceptionHandler {
         ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, ex.getMessage());
         problem.setTitle("Invalid Statistics Query");
         problem.setType(URI.create("https://linkpulse.dev/errors/invalid-stats-query"));
+        return problem;
+    }
+
+    @ExceptionHandler(AuthenticationException.class)
+    public ProblemDetail handleAuthentication(AuthenticationException ex) {
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(
+                HttpStatus.UNAUTHORIZED,
+                "Full authentication is required to access this resource."
+        );
+        problem.setTitle("Unauthorized");
+        problem.setType(URI.create("https://linkpulse.dev/errors/unauthorized"));
         return problem;
     }
 
