@@ -74,9 +74,40 @@ services:
     networks:
       - linkpulse-net
 
+  prometheus:
+    image: prom/prometheus:v3.0.1
+    container_name: linkpulse-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    # Linux needs this to resolve host.docker.internal (Docker Desktop provides it already)
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - linkpulse-net
+
+  grafana:
+    image: grafana/grafana:11.4.0
+    container_name: linkpulse-grafana
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-admin}
+    volumes:
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - grafana-data:/var/lib/grafana
+    depends_on:
+      - prometheus
+    networks:
+      - linkpulse-net
+
 volumes:
   postgres-data:
   postgres-analytics-data:
+  grafana-data:
 
 networks:
   linkpulse-net:
