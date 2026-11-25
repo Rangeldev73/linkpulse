@@ -3,8 +3,11 @@ package dev.rangel.linkservice.infrastructure.web.exception;
 import dev.rangel.linkservice.domain.exception.AliasAlreadyExistsException;
 import dev.rangel.linkservice.domain.exception.CodeGenerationException;
 import dev.rangel.linkservice.domain.exception.LinkNotFoundException;
+import dev.rangel.linkservice.domain.exception.RateLimitExceededException;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -67,6 +70,20 @@ public class GlobalExceptionHandler {
         problem.setTitle("Resource Not Found");
         problem.setType(URI.create("https://linkpulse.dev/errors/link-not-found"));
         return problem;
+    }
+
+    @ExceptionHandler(RateLimitExceededException.class)
+    public ResponseEntity<ProblemDetail> handleRateLimitExceeded(RateLimitExceededException ex) {
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(
+                HttpStatus.TOO_MANY_REQUESTS,
+                "Too many link creation requests. Try again in " + ex.getRetryAfterSeconds() + " seconds."
+        );
+        problem.setTitle("Rate Limit Exceeded");
+        problem.setType(URI.create("https://linkpulse.dev/errors/rate-limit-exceeded"));
+
+        return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+                .header(HttpHeaders.RETRY_AFTER, String.valueOf(ex.getRetryAfterSeconds()))
+                .body(problem);
     }
 
     @ExceptionHandler(Exception.class)
