@@ -1,0 +1,14 @@
+# The repository stores LF. Normalize on every OS so a Windows checkout
+# (CRLF) never shows phantom diffs or breaks shell scripts inside Linux containers.
+* text=auto eol=lf
+
+# Windows-only scripts keep CRLF.
+*.cmd text eol=crlf
+*.bat text eol=crlf
+
+# The Maven wrapper runs on Linux in CI and in Docker: it must be LF.
+mvnw text eol=lf
+*.sh text eol=lf
+
+*.jar binary
+*.png binary
