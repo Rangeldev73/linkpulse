@@ -5,6 +5,7 @@ import dev.rangel.linkservice.application.service.RateLimiter;
 import dev.rangel.linkservice.domain.exception.RateLimitExceededException;
 import dev.rangel.linkservice.infrastructure.config.LinkCreationRateLimitProperties;
 import jakarta.servlet.http.HttpServletRequest;
+import io.micrometer.core.instrument.MeterRegistry;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpMethod;
@@ -25,6 +26,7 @@ public class LinkCreationRateLimitInterceptor implements HandlerInterceptor {
 
     private final RateLimiter rateLimiter;
     private final LinkCreationRateLimitProperties properties;
+    private final MeterRegistry meterRegistry;
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
@@ -37,6 +39,7 @@ public class LinkCreationRateLimitInterceptor implements HandlerInterceptor {
                 KEY_PREFIX + authentication.getName(), properties.limit(), properties.window());
 
         if (!result.allowed()) {
+            meterRegistry.counter("linkpulse.ratelimit.rejected", "endpoint", "link-creation").increment();
             throw new RateLimitExceededException(result.retryAfterSeconds());
         }
         return true;

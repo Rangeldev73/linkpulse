@@ -3,6 +3,7 @@ package dev.rangel.analyticsservice.infrastructure.messaging;
 import dev.rangel.analyticsservice.application.dto.RedirectAttemptEvent;
 import dev.rangel.analyticsservice.application.service.ClickEventPersistenceService;
 import dev.rangel.analyticsservice.domain.model.ClickEventEntity;
+import io.micrometer.core.instrument.MeterRegistry;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Component;
 public class ClickEventConsumer {
 
     private final ClickEventPersistenceService persistenceService;
+    private final MeterRegistry meterRegistry;
     private static final Logger log = LoggerFactory.getLogger(ClickEventConsumer.class);
 
     @KafkaListener(topics = "redirect-attempts", groupId = "analytics-service-group", autoStartup = "${app.kafka.listener.auto-startup:true}")
@@ -36,9 +38,11 @@ public class ClickEventConsumer {
 
         try {
             persistenceService.saveEventIsolated(entity);
+            meterRegistry.counter("linkpulse.analytics.events", "result", "persisted").increment();
             log.debug("Successfully persisted click event: {}", event.eventId());
         } catch (DataIntegrityViolationException e) {
             if (isDuplicateEventViolation(e)) {
+                meterRegistry.counter("linkpulse.analytics.events", "result", "duplicate").increment();
                 log.warn("Duplicate event detected (already processed): {}. Skipping safely.", event.eventId());
             } else {
                 log.error("Unexpected database integrity violation while processing event: {}", event.eventId(), e);
