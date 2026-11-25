@@ -20,7 +20,7 @@ public class ClickStatsService {
     private final ClickStatsRepository clickStatsRepository;
     private final Clock clock;
 
-    public ClickStatsResponse getClicks(String code, String granularity, Instant from, Instant to) {
+    public ClickStatsResponse getClicks(String ownerId, String code, String granularity, Instant from, Instant to) {
         Granularity parsedGranularity = Granularity.from(granularity);
 
         Instant resolvedTo = (to != null) ? to : Instant.now(clock);
@@ -37,7 +37,7 @@ public class ClickStatsService {
         }
 
         List<ClickBucket> buckets = clickStatsRepository
-                .countClicksByBucket(code, parsedGranularity.unit(), resolvedFrom, resolvedTo)
+                .countClicksByBucket(code, ownerId, parsedGranularity.unit(), resolvedFrom, resolvedTo)
                 .stream()
                 .map(row -> new ClickBucket(Instant.ofEpochSecond(row.getBucket()), row.getClicks()))
                 .toList();

@@ -4,6 +4,8 @@ import dev.rangel.analyticsservice.application.dto.ClickStatsResponse;
 import dev.rangel.analyticsservice.application.service.ClickStatsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,8 +28,9 @@ public class ClickStatsController {
             @RequestParam(name = "from", required = false)
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant from,
             @RequestParam(name = "to", required = false)
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant to
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant to,
+            @AuthenticationPrincipal Jwt jwt
     ) {
-        return clickStatsService.getClicks(code, granularity, from, to);
+        return clickStatsService.getClicks(jwt.getSubject(), code, granularity, from, to);
     }
 }
